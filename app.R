@@ -17,6 +17,8 @@ mydat<-mydat[mydat$number > 0,]
 mydat$date.observed<-as.Date(mydat$date.observed)
 mydat$julian<-yday(mydat$date.observed)
 
+mydat$family2<-recode(mydat$family, "Nymphalidae"="Brush-footed Butterflies", "Papilionidae"="Parnassians & Swallowtails","Pieridae"="Whites & Sulphurs","Lycaenidae"="Gossamer-wing Butterflies","Hesperiidae"="Skippers")
+
 ui<-fluidPage(
   titlePanel("Butterfly species abundance by month"),
   
@@ -26,7 +28,7 @@ ui<-fluidPage(
       h4("How to use this wordcloud:"),
       p("Use this sidebar to select a butterfly family and month to display the most commonly observed and least commonly observed butterfly species at Mason Farm."),
       br(),
-      selectInput("family", "Choose a butterfly family:", c("Nymphalidae", "Papilionidae","Pieridae","Lycaenidae","Hesperiidae")),
+      selectInput("family", "Choose a butterfly family:", c("Brush-footed Butterflies", "Parnassians & Swallowtails","Whites & Sulphurs","Gossamer-wing Butterflies","Skippers")),
       sliderInput("month", "Choose a month (1-12):",min=1, max=12, value=6),
       hr(),
       h6("Powered by:"),
@@ -67,7 +69,7 @@ server <- function(input, output) {
   
   dat2<-reactive({
     mydat<-mydat[mydat$month == input$month,]
-    mydat<-mydat[mydat$family == input$family,]
+    mydat<-mydat[mydat$family2 == input$family,]
     x<-aggregate(number~comName+month, data=mydat, sum, na.rm=TRUE)
     x<-x[order(x$number),]
     x$inverse<-(203-x$number)
@@ -89,7 +91,7 @@ server <- function(input, output) {
   
   commondat<-reactive({
     mydat<-mydat[mydat$month == input$month,]
-    mydat<-mydat[mydat$family == input$family,]
+    mydat<-mydat[mydat$family2 == input$family,]
     x<-aggregate(number~comName+month, data=mydat, sum, na.rm=TRUE)
     x<-x[x$month == input$month,]
     x<-x[order(-x$number),]
@@ -97,7 +99,7 @@ server <- function(input, output) {
   
   uncommondat<-reactive({
     mydat<-mydat[mydat$month == input$month,]
-    mydat<-mydat[mydat$family == input$family,]
+    mydat<-mydat[mydat$family2== input$family,]
     x<-aggregate(number~comName+month, data=mydat, sum, na.rm=TRUE)
     x<-x[x$month == input$month,]
     x<-x[order(x$number),]
