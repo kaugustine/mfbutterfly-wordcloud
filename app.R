@@ -51,8 +51,8 @@ ui<-fluidPage(
         tabPanel("List of common species", dataTableOutput("commontable")),
         tabPanel("Uncommon species wordcloud",  plotOutput("plot2")),
         tabPanel("List of uncommon species", dataTableOutput("uncommontable")))
+    )
   )
-)
 )
 
 # Define the plots
@@ -61,7 +61,7 @@ server <- function(input, output) {
   # create subset and vector for common wordcloud
   dat<-reactive({
     mydat<-mydat[mydat$month == input$month,]
-    mydat<-mydat[mydat$family == input$family,]
+    mydat<-mydat[mydat$family2 == input$family,]
     
     mydat$comName2<-gsub("-", "", mydat$comName)
     mydat$comName3<-gsub("'", "", mydat$comName2)
@@ -111,23 +111,23 @@ server <- function(input, output) {
     x<-x[x$month == input$month,]
     x<-x[order(x$number),]
   })
-
+  
   # create datatable of data ordered by most common species
   output$commontable <- renderDataTable({commondat()
   })
-
+  
   # create datatable of data ordered by least common species
   output$uncommontable <- renderDataTable({uncommondat()
   })
-
+  
   # create wordcloud of common subdata
   output$plot<-renderPlot({wordcloud(dat(), min.freq=1, max.words=20,
-              colors=brewer.pal(8,"Dark2"), random.order=TRUE)
+                                     colors=brewer.pal(8,"Dark2"), random.order=TRUE)
   })
   
   # create wordcloud of uncommon subset
   output$plot2<-renderPlot({wordcloud(dat2(), min.freq=1, max.words=20,
-                                     colors=brewer.pal(8,"Dark2"), random.order=TRUE)
+                                      colors=brewer.pal(8,"Dark2"), random.order=TRUE)
   })
 }
 
