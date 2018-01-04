@@ -18,7 +18,7 @@ mydat$date.observed<-as.Date(mydat$date.observed)
 mydat$julian<-yday(mydat$date.observed)
 
 # reformat family column from latin names to common names
-mydat$family2<-recode(mydat$family, "Nymphalidae"="Brush-footed Butterflies", "Papilionidae"="Parnassians & Swallowtails","Pieridae"="Whites & Sulphurs","Lycaenidae"="Gossamer-wing Butterflies","Hesperiidae"="Skippers")
+mydat$family2<-recode(mydat$family, "Nymphalidae"="Brush-footed Butterflies", "Papilionidae"="Parnassians & Swallowtails","Pieridae"="Whites & Sulphurs","Lycaenidae "="Gossamer-wing Butterflies","Hesperiidae"="Skippers")
 
 # Define the UI
 ui<-fluidPage(
