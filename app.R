@@ -8,17 +8,19 @@ library(SnowballC)
 library(wordcloud)
 library("RColorBrewer")
 
-# creating subset of just Piedmont butterflies
-# setwd("C:/Users/keapa/Dropbox/My research/R Shiny/cloud.app")
+# Load subset of Mason Farm observations and excluding lines with zero butterflies seen
 mydat <- read.csv("legrand.kingsolver.mf.dat.12.12.17.csv")
-
 mydat<-mydat[mydat$location == "mf",]
 mydat<-mydat[mydat$number > 0,]
+
+# reformat date columns for plotting
 mydat$date.observed<-as.Date(mydat$date.observed)
 mydat$julian<-yday(mydat$date.observed)
 
+# reformat family column from latin names to common names
 mydat$family2<-recode(mydat$family, "Nymphalidae"="Brush-footed Butterflies", "Papilionidae"="Parnassians & Swallowtails","Pieridae"="Whites & Sulphurs","Lycaenidae"="Gossamer-wing Butterflies","Hesperiidae"="Skippers")
 
+# Define the UI
 ui<-fluidPage(
   titlePanel("Butterfly species abundance by month"),
   
@@ -53,8 +55,10 @@ ui<-fluidPage(
 )
 )
 
+# Define the plots
 server <- function(input, output) {
   
+  # create subset and vector for common wordcloud
   dat<-reactive({
     mydat<-mydat[mydat$month == input$month,]
     mydat<-mydat[mydat$family == input$family,]
@@ -67,6 +71,7 @@ server <- function(input, output) {
     
   })
   
+  # reformat subset to create vector of uncommon species
   dat2<-reactive({
     mydat<-mydat[mydat$month == input$month,]
     mydat<-mydat[mydat$family2 == input$family,]
@@ -89,6 +94,7 @@ server <- function(input, output) {
     dat2<-Corpus(VectorSource(x2$name))
   })
   
+  # subset by month and family selection and order by most common
   commondat<-reactive({
     mydat<-mydat[mydat$month == input$month,]
     mydat<-mydat[mydat$family2 == input$family,]
@@ -97,6 +103,7 @@ server <- function(input, output) {
     x<-x[order(-x$number),]
   })
   
+  # subset by month and family selection and order by least common
   uncommondat<-reactive({
     mydat<-mydat[mydat$month == input$month,]
     mydat<-mydat[mydat$family2== input$family,]
@@ -105,16 +112,20 @@ server <- function(input, output) {
     x<-x[order(x$number),]
   })
 
+  # create datatable of data ordered by most common species
   output$commontable <- renderDataTable({commondat()
   })
 
+  # create datatable of data ordered by least common species
   output$uncommontable <- renderDataTable({uncommondat()
   })
 
+  # create wordcloud of common subdata
   output$plot<-renderPlot({wordcloud(dat(), min.freq=1, max.words=20,
               colors=brewer.pal(8,"Dark2"), random.order=TRUE)
   })
   
+  # create wordcloud of uncommon subset
   output$plot2<-renderPlot({wordcloud(dat2(), min.freq=1, max.words=20,
                                      colors=brewer.pal(8,"Dark2"), random.order=TRUE)
   })
